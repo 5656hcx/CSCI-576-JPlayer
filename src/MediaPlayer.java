@@ -1,7 +1,7 @@
 public abstract class MediaPlayer<T>  {
 
-    PlaybackStateChangeListener listener;
-    volatile State currentState;
+    private StateChangeListener listener;
+    protected volatile State currentState;
 
     enum State { Playing, Paused, Stopped }
 
@@ -13,17 +13,17 @@ public abstract class MediaPlayer<T>  {
     abstract void reset();  // use this function to restore runtime variables
     abstract void peek(long frameIndex);   // relocate current frame to frameIndex
 
-    final void setPlaybackStateChange(PlaybackStateChangeListener listener) {
+    final void setStateChangeListener(StateChangeListener listener) {
         this.listener = listener;
     }
 
     final void notifyStateChanged() {
         if (listener != null) {
-            listener.onPlaybackStateChange(currentState);
+            listener.onPlayerStateChange(currentState);
         }
     }
 
-    public interface PlaybackStateChangeListener {
-        void onPlaybackStateChange(MediaPlayer.State state);
+    public interface StateChangeListener {
+        void onPlayerStateChange(MediaPlayer.State state);
     }
 }

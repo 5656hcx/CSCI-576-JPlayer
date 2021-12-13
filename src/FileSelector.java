@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 public abstract class FileSelector implements ActionListener {
 
@@ -13,7 +14,7 @@ public abstract class FileSelector implements ActionListener {
         this.parent = parent;
     }
 
-    public abstract void onFileSelected(String path);
+    public abstract void onFileSelected(File file);
 
     @Override
     public final void actionPerformed(ActionEvent e) {
@@ -21,7 +22,7 @@ public abstract class FileSelector implements ActionListener {
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setDialogTitle(title);
         if (JFileChooser.APPROVE_OPTION == fileChooser.showOpenDialog(parent)) {
-            onFileSelected(fileChooser.getSelectedFile().getPath());
+            onFileSelected(fileChooser.getSelectedFile());
         }
     }
 

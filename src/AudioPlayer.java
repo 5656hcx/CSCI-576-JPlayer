@@ -1,7 +1,7 @@
 import javax.sound.sampled.*;
 import java.io.*;
 
-public class AudioPlayer extends MediaPlayer<String> {
+public class AudioPlayer extends MediaPlayer<BufferedInputStream> {
     private BufferedInputStream inputStream;
     private Clip audioClip;
 
@@ -21,10 +21,12 @@ public class AudioPlayer extends MediaPlayer<String> {
     }
 
     @Override
-    public void open(String mediaSource) {
-        MediaReader reader = MediaReader.getInstance();
-        inputStream = reader.readWavFile(mediaSource);
-        reset();
+    public void open(BufferedInputStream mediaSource) {
+        close();
+        inputStream = mediaSource;
+        if (inputStream != null) {
+            reset();
+        }
     }
 
     @Override
@@ -33,16 +35,23 @@ public class AudioPlayer extends MediaPlayer<String> {
             audioClip.stop();
             audioClip.close();
         }
+        currentState = State.Stopped;
     }
 
     @Override
     public void play() {
-        audioClip.start();
+        if (currentState == State.Paused) {
+            currentState = State.Playing;
+            audioClip.start();
+        }
     }
 
     @Override
     public void pause() {
-        audioClip.stop();
+        if (currentState == State.Playing) {
+            currentState = State.Paused;
+            audioClip.stop();
+        }
     }
 
     @Override
@@ -51,19 +60,20 @@ public class AudioPlayer extends MediaPlayer<String> {
     }
 
     @Override
-    void reset() {
+    public void reset() {
         try {
-            close();
             audioClip = AudioSystem.getClip();
             audioClip.open(AudioSystem.getAudioInputStream(inputStream));
+            currentState = State.Paused;
         }
         catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
             e.printStackTrace();
+            currentState = State.Stopped;
         }
     }
 
     @Override
-    void peek(long frameIndex) {
+    public void peek(long frameIndex) {
         if (audioClip != null) {
             audioClip.setMicrosecondPosition(frameIndex * frameOffsetMicros);
         }

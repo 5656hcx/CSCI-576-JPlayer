@@ -3,15 +3,16 @@ import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 
-public class JPlayer extends JPanel implements MediaPlayer.PlaybackStateChangeListener {
+public class JPlayer extends JPanel implements MediaPlayer.StateChangeListener {
 
     private final JButton button_play;
     private final JLabel video;
     private final Slider slider;
 
-    private ArrayList<File> videoFrames;
     private final AudioPlayer audioPlayer;
     private final VideoPlayer videoPlayer;
+
+    private boolean isPlayerPaused = true;
 
     public JPlayer() {
         setLayout(new BorderLayout());
@@ -24,21 +25,20 @@ public class JPlayer extends JPanel implements MediaPlayer.PlaybackStateChangeLi
         slider = new Slider(status, "Now playing the %dth frame");
 
         audioPlayer = new AudioPlayer(slider);
-        audioPlayer.setPlaybackStateChange(this);
+        audioPlayer.setStateChangeListener(this);
         videoPlayer = new VideoPlayer(slider, video);
-        videoPlayer.setPlaybackStateChange(this);
+        videoPlayer.setStateChangeListener(this);
 
         JButton button_load = new JButton("load");
         button_load.addActionListener(new FileSelector("Select video directory...", JPlayer.this) {
             @Override
-            public void onFileSelected(String path) {
+            public void onFileSelected(File file) {
                 MediaReader reader = MediaReader.getInstance();
-                videoFrames = reader.readVideoDir(path);
+                ArrayList<File> videoFrames = reader.readVideoDir(file.getPath());
                 if (!videoFrames.isEmpty()) {
-                    audioPlayer.open(path);
+                    audioPlayer.open(reader.readWavFile(file.getPath()));
                     audioPlayer.setVideoFrameLength(videoFrames.size());
                     video.setText(null);
-                    video.setIcon(new ImageIcon(reader.readRgbFile(videoFrames.get(0))));
                     videoPlayer.open(videoFrames);
                     slider.reset(videoFrames);
                 }
@@ -48,18 +48,14 @@ public class JPlayer extends JPanel implements MediaPlayer.PlaybackStateChangeLi
         button_play = new JButton("play");
         button_play.addActionListener(e -> {
             // for now, do nothing in Stopped state
-            switch (videoPlayer.currentState) {
-                case Paused:
-                    // tell playback thread to resume
-                    videoPlayer.play();
-                    audioPlayer.peek(slider.getValue());
-                    audioPlayer.play();
-                    break;
-            case Playing:
-                    // tell playback thread to pause
-                    videoPlayer.pause();
-                    audioPlayer.pause();
-                    break;
+            if (isPlayerPaused) {
+                videoPlayer.play();
+                audioPlayer.peek(slider.getValue());
+                audioPlayer.play();
+            }
+            else {
+                videoPlayer.pause();
+                audioPlayer.pause();
             }
         });
 
@@ -76,16 +72,16 @@ public class JPlayer extends JPanel implements MediaPlayer.PlaybackStateChangeLi
     }
 
     @Override
-    public void onPlaybackStateChange(MediaPlayer.State state) {
+    public void onPlayerStateChange(MediaPlayer.State state) {
         switch (state) {
             case Paused:
                 button_play.setText("play");
+                isPlayerPaused = true;
                 break;
-            // System.out.println("Video Playback has paused");
             case Playing:
                 button_play.setText("pause");
+                isPlayerPaused = false;
                 break;
-            // System.out.println("Video Playback has resumed");
         }
     }
 
