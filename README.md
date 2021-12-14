@@ -2,14 +2,15 @@
 A simple media player powered by Java Swing with the ability to sync audio and video stream <br />
 You are welcome to modify or extend it with additional features! <br />
 
+<img width=30% src="Screenshot_0.jpg"/> <img width=30% src="Screenshot_1.jpg"/> <br />
+
+### Run a demo
 ```
-how to run a demo: cd project root then run:
+cd project root then run:
   
   $ javac -cp src src/JPlayer.java
   $ java -cp src JPlayer
 ```
-
-<img width=30% src="Screenshot_0.jpg"/> <img width=30% src="Screenshot_1.jpg"/> <br />
 
 ### Synchronization
 The synchronization consists of 2 parts: calibration and compensation. Calibration is used to <br />
