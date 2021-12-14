@@ -40,18 +40,12 @@ public class AudioPlayer extends MediaPlayer<BufferedInputStream> {
 
     @Override
     public void play() {
-        if (currentState == State.Paused) {
-            currentState = State.Playing;
-            audioClip.start();
-        }
+        audioClip.start();
     }
 
     @Override
     public void pause() {
-        if (currentState == State.Playing) {
-            currentState = State.Paused;
-            audioClip.stop();
-        }
+        audioClip.stop();
     }
 
     @Override
@@ -64,6 +58,14 @@ public class AudioPlayer extends MediaPlayer<BufferedInputStream> {
         try {
             audioClip = AudioSystem.getClip();
             audioClip.open(AudioSystem.getAudioInputStream(inputStream));
+            audioClip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.START) {
+                    currentState = State.Playing;
+                }
+                if (event.getType() == LineEvent.Type.STOP) {
+                    currentState = State.Paused;
+                }
+            });
             currentState = State.Paused;
         }
         catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {

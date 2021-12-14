@@ -50,12 +50,9 @@ public class JPlayer extends JPanel implements MediaPlayer.StateChangeListener {
             // for now, do nothing in Stopped state
             if (isPlayerPaused) {
                 videoPlayer.play();
-                audioPlayer.peek(slider.getValue());
-                audioPlayer.play();
             }
             else {
                 videoPlayer.pause();
-                audioPlayer.pause();
             }
         });
 
@@ -77,10 +74,13 @@ public class JPlayer extends JPanel implements MediaPlayer.StateChangeListener {
             case Paused:
                 button_play.setText("play");
                 isPlayerPaused = true;
+                audioPlayer.pause();
                 break;
             case Playing:
                 button_play.setText("pause");
                 isPlayerPaused = false;
+                audioPlayer.peek(slider.getValue());
+                audioPlayer.play();
                 break;
         }
     }
