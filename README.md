@@ -4,7 +4,7 @@ You are welcome to modify or extend it with additional features! <br />
 
 <img width=30% src="Screenshot_0.jpg"/> <img width=30% src="Screenshot_1.jpg"/> <br />
 
-### Run a demo
+### Run a demo (Requires JDK11 or later)
 ```
 cd project root then run:
   
